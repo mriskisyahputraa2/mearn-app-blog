@@ -1,7 +1,56 @@
-import { Button, Label, TextInput } from "flowbite-react";
-import { Link } from "react-router-dom";
+import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
+  // state form data, state awal diatur object kosong
+  const [formData, setFormData] = useState({});
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // function handle change, dipanggil setiap kali ada perubahan pada inputan form data
+  const handleChange = (e) => {
+    // memperbarui state formData.
+    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+    // e.target.id, adalah id dari elemen inputan yang berubah (username, email, password).
+    // e.target.value.trim(), adalah nilai baru dari inputan tersebut, dan trim() untuk menghapus spasi depan dan belakang
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // validasi jika data tidak dimasukkan
+    if (!formData.username || !formData.email || !formData.password) {
+      return setErrorMessage("Please fill out all fields!");
+    }
+
+    try {
+      setLoading(true);
+      setErrorMessage(null);
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      // validasi, jika ada data yang sama(username, email), maka tampilkan pesan error
+      if (data.success === false) {
+        return setErrorMessage(data.message);
+      }
+
+      if (res.ok) {
+        navigate("/sign-in");
+      }
+
+      setLoading(false);
+    } catch (error) {
+      setErrorMessage(error.message);
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen mt-20">
@@ -21,10 +70,15 @@ export default function SignUp() {
           </div>
           {/* right form input */}
           <div className="flex-1">
-            <form className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
                 <Label value="Your Username" />
-                <TextInput type="text" placeholder="Username" id="username" />
+                <TextInput
+                  type="text"
+                  placeholder="Username"
+                  id="username"
+                  onChange={handleChange}
+                />
               </div>
               <div>
                 <Label value="Your Email" />
@@ -32,6 +86,7 @@ export default function SignUp() {
                   type="email"
                   placeholder="name@company.com"
                   id="email"
+                  onChange={handleChange}
                 />
               </div>
               <div>
@@ -40,10 +95,23 @@ export default function SignUp() {
                   type="password"
                   placeholder="Password"
                   id="password"
+                  onChange={handleChange}
                 />
               </div>
-              <Button type="submit" gradientDuoTone="purpleToPink">
-                Sign Up
+              <Button
+                type="submit"
+                gradientDuo
+                Tone="purpleToPink"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Spinner size="sm" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  "Sign Up"
+                )}
               </Button>
             </form>
             <div className="flex gap-2 text-sm mt-5">
@@ -52,6 +120,11 @@ export default function SignUp() {
                 Sign In
               </Link>
             </div>
+            {errorMessage && (
+              <Alert className="mt-5" color="failure">
+                {errorMessage}
+              </Alert>
+            )}
           </div>
         </div>
       </div>
