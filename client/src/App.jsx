@@ -9,6 +9,7 @@ import SignUp from "./Pages/SignUp/SignUp";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import Project from "./Pages/Projects/Project";
 import Header from "./Components/Header";
+import Footer from "./Components/Footer";
 
 const App = () => {
   return (
@@ -25,6 +26,10 @@ const App = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/projects" element={<Project />} />
         </Routes>
+
+        {/* Start Footer */}
+        <Footer />
+        {/* End Footer */}
       </BrowserRouter>
     </>
   );
