@@ -16,15 +16,26 @@ export const signup = async (req, res, next) => {
     next(errorHandler(400, "All fields are required")); // use function errorHandler from utils
   }
 
-  const hashPassword = bcrypt.hashSync(password, 10);
-
-  const newUser = new User({
-    username,
-    email,
-    password: hashPassword,
-  });
-
   try {
+    // Check if the username or email already exists
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return next(
+        errorHandler(
+          400,
+          "Username and email already in use, please try again!"
+        )
+      );
+    }
+
+    const hashPassword = bcrypt.hashSync(password, 10);
+
+    const newUser = new User({
+      username,
+      email,
+      password: hashPassword,
+    });
+
     await newUser.save();
     res.json({ user: [newUser], message: "Signup successfull" });
   } catch (error) {

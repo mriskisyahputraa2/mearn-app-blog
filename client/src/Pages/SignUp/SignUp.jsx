@@ -25,25 +25,32 @@ export default function SignUp() {
       return setErrorMessage("Please fill out all fields!");
     }
 
+    // start
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      setLoading(true); // menampilkan loading, jika ada kesalahan
+      setErrorMessage(null); // default nya null dulu, jika ada kesalahan baru muncul pesan error
+
+      // response data
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+
+      // mengonversi response dari server yang berupa JSON menjadi object js
       const data = await res.json();
 
-      // validasi, jika ada data yang sama(username, email), maka tampilkan pesan error
+      // validasi, jika ada data(username, email) yang sama, maka tampilkan pesan error
       if (data.success === false) {
         return setErrorMessage(data.message);
       }
 
+      // validasi, jika proses validasi signup berhasil, maka pengguna di navigate ke sign-in
       if (res.ok) {
         navigate("/sign-in");
       }
 
+      // mematikan loading
       setLoading(false);
     } catch (error) {
       setErrorMessage(error.message);
