@@ -5,7 +5,6 @@ import {
   BsLinkedin,
   BsGithub,
   BsFacebook,
-  BsTwitter,
   BsDribbble,
 } from "react-icons/bs";
 
