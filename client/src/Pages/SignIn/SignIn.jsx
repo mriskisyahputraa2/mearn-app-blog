@@ -26,7 +26,7 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // validasi jika data tidak dimasukkan
+    // validasi jika email dan password tidak diinsertkan
     if (!formData.email || !formData.password) {
       return dispatch(signInFailure("Please fill out all fields!"));
     }
@@ -35,7 +35,7 @@ export default function SignIn() {
     try {
       dispatch(signInStart());
 
-      // response data
+      // response data signin(login)
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
