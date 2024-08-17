@@ -1,13 +1,19 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../../redux/user/userSlice.js";
 
 export default function SignIn() {
   // state form data, state awal diatur object kosong
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
 
   // function handle change, dipanggil setiap kali ada perubahan pada inputan form data
   const handleChange = (e) => {
@@ -22,13 +28,12 @@ export default function SignIn() {
 
     // validasi jika data tidak dimasukkan
     if (!formData.email || !formData.password) {
-      return setErrorMessage("Please fill out all fields!");
+      return dispatch(signInFailure("Please fill out all fields!"));
     }
 
     // start
     try {
-      setLoading(true); // menampilkan loading, jika ada kesalahan
-      setErrorMessage(null); // default nya null dulu, jika ada kesalahan baru muncul pesan error
+      dispatch(signInStart());
 
       // response data
       const res = await fetch("/api/auth/signin", {
@@ -42,19 +47,16 @@ export default function SignIn() {
 
       // validasi, jika ada data(username, email) yang sama, maka tampilkan pesan error
       if (data.success === false) {
-        return setErrorMessage(data.message);
+        dispatch(signInFailure(data.message));
       }
 
       // validasi, jika proses validasi SignIn berhasil, maka pengguna di navigate ke sign-in
       if (res.ok) {
+        dispatch(signInSuccess(data));
         navigate("/");
       }
-
-      // mematikan loading
-      setLoading(false);
     } catch (error) {
-      setErrorMessage(error.message);
-      setLoading(false);
+      dispatch(signInFailure(error.message));
     }
   };
 
