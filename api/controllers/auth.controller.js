@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 
+// Function SignUp
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
 
@@ -44,33 +45,45 @@ export const signup = async (req, res, next) => {
   }
 };
 
+// Function SignIn
 export const signin = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body; // mendapatkan request email dan password dari pengguna
 
+  // validasi, email dan password tidak boleh kosong
   if (!email || !password || email === "" || password === "") {
     return next(errorHandler(400, "All fields are required!"));
   }
 
   try {
-    const validUser = await User.findOne({ email });
+    const validUser = await User.findOne({ email }); // mencari user melalui email-nya
+
+    // validasi, jika email tidak ditemukan
     if (!validUser) {
       return next(errorHandler(400, "User not found!"));
     }
 
+    // validasi, jika pengguna ditemukan dan mecocokkan dengan password yang sudah di daftarkan
     const validPassword = bcrypt.compareSync(password, validUser.password);
+
+    // validasi, password jika salah dan tidak sesuai dengan proses signIn
     if (!validPassword) {
       return next(errorHandler(400, "Invalid Password!"));
     }
 
+    // membuat token jwt
     const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
 
+    // tidak menampilkan password saat login berhasil(untuk keamanan)
     const { password: pass, ...rest } = validUser._doc;
 
+    // manampilkan data user ketika berhasil login
     res
       .status(200)
       .cookie("access_token", token, {
         httpOnly: true,
       })
       .json(rest);
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
