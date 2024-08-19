@@ -22,7 +22,7 @@ const App = () => {
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
 
-          {/* pengguna harus login dulu agar bisa kehalaman dashboard, jika belum route nya masih private(tidak boleh) */}
+          {/* pengguna harus login dulu agar bisa kehalaman dashboard, jika belum route nya masih private(tidak boleh ) */}
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
