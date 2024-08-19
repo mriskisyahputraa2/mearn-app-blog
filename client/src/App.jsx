@@ -1,7 +1,4 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import { Button } from "flowbite-react";
 import Home from "./Pages/Home/Home";
 import About from "./Pages/About/About";
 import SignIn from "./Pages/SignIn/SignIn";

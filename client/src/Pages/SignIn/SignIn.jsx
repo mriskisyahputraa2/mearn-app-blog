@@ -7,6 +7,7 @@ import {
   signInSuccess,
   signInFailure,
 } from "../../redux/user/userSlice.js";
+import OAuth from "../../Components/OAuth.jsx";
 
 export default function SignIn() {
   // state form data, state awal diatur object kosong
@@ -100,7 +101,7 @@ export default function SignIn() {
               </div>
               <Button
                 type="submit"
-                gradientDuo
+                gradientDuoTone="purpleToPink"
                 Tone="purpleToPink"
                 disabled={loading}
               >
@@ -113,6 +114,8 @@ export default function SignIn() {
                   "Sign In"
                 )}
               </Button>
+              {/* form google */}
+              <OAuth />
             </form>
             <div className="flex gap-2 text-sm mt-5">
               <span>Dont Have an account?</span>
