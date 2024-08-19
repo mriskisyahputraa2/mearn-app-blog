@@ -88,27 +88,40 @@ export const signin = async (req, res, next) => {
   }
 };
 
+// Function SignIn dan SignUp With Google Account
 export const google = async (req, res, next) => {
-  const { email, name, googlePhotoUrl } = req.body;
+  const { email, name, googlePhotoUrl } = req.body; // mendapatkan req email, name dan google photo dari pengguna
 
+  // start
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }); // mencari user berdasarkan email
 
+    // validasi, jika user ada
     if (user) {
+      // membuat token
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
-      const { password, ...rest } = user._doc;
+      const { password, ...rest } = user._doc; // dihilangkan dari objek pengguna yang akan dikirimkan ke klien
+
+      // jika berhasil tampilkan data nya
       res
         .status(200)
         .cookie("access_token", token, {
           httpOnly: true,
         })
         .json(rest);
+
+      // jika pengguna tidak ditemukan, sistem akan membuat pengguna baru
     } else {
+      // Sistem menghasilkan kata sandi acak dengan menggabungkan dua string acak yang dihasilkan oleh Math.random().toString(36).slice(-8).
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
 
+      // Kata sandi tersebut kemudian di-hash menggunakan bcrypt.hashSync dengan tingkat keamanan (saltRounds) 10.
       const hashedPassword = bcrypt.hashSync(generatedPassword, 10);
+
+      // Sebuah objek pengguna baru (newUser) dibuat dengan username yang dihasilkan dari nama pengguna yang diubah menjadi huruf kecil, tanpa spasi, dan ditambah dengan angka acak.
+      // Email dan foto profil pengguna Google juga ditambahkan ke objek pengguna baru ini
       const newUser = new User({
         username:
           name.toLowerCase().split(" ").join("") +
@@ -118,7 +131,9 @@ export const google = async (req, res, next) => {
         profilePicture: googlePhotoUrl,
       });
 
+      // setelah data berhasil, baru disimpan kedalam database mongodb
       await newUser.save();
+      // Token JWT dibuat untuk pengguna baru dengan cara yang sama seperti pada pengguna yang sudah ada.
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
       const { password, ...rest } = user._doc;
 
