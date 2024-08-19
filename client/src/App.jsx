@@ -7,6 +7,7 @@ import Dashboard from "./Pages/Dashboard/Dashboard";
 import Project from "./Pages/Projects/Project";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
+import PrivateRoute from "./Components/PrivateRoute";
 
 const App = () => {
   return (
@@ -20,7 +21,12 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* pengguna harus login dulu agar bisa kehalaman dashboard, jika belum route nya masih private(tidak boleh) */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
+
           <Route path="/projects" element={<Project />} />
         </Routes>
 
