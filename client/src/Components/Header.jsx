@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 
 const Header = () => {
   const path = useLocation().pathname;
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser } = useSelector((state) => state.user); // mendapatan data pengguna dari proses slice yang berhasil
 
   return (
     <>
@@ -36,16 +36,18 @@ const Header = () => {
             <FaMoon />
           </Button>
 
+          {/* jika pengguna sudah berhasil login munculkan informasi datanya  */}
           {currentUser ? (
             <Dropdown
               arrowIcon={false}
               inline
               label={
-                <Avatar alt="user" img={currentUser.profilePicture} rounded />
+                <Avatar alt="user" img={currentUser.profilePicture} rounded /> // img ditampilkan
               }
             >
+              {/* tampilkan username dan email pengguna */}
               <Dropdown.Header>
-                <span className="block text-sm">@{currentUser.username}</span>
+                <span className="block text-sm">{currentUser.username}</span>
                 <span className="block text-sm font-medium truncate">
                   {currentUser.email}
                 </span>
@@ -58,6 +60,7 @@ const Header = () => {
               <Dropdown.Item>Sign out</Dropdown.Item>
             </Dropdown>
           ) : (
+            // jika pengguna belum login maka, tampilkan button sign In
             <Link to={"/sign-in"}>
               <Button gradientDuoTone="purpleToBlue" outline>
                 Sign In
