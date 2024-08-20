@@ -22,6 +22,7 @@ export default function DashSidebar() {
           <Sidebar.ItemGroup>
             <Link to="/dashboard?tab=profile">
               <Sidebar.Item
+                as="div"
                 active={tab === "profile"}
                 icon={HiUser}
                 label={"User"}
@@ -29,7 +30,11 @@ export default function DashSidebar() {
               >
                 Profile
               </Sidebar.Item>
-              <Sidebar.Item icon={HiArrowSmRight} className="cursor-pointer">
+              <Sidebar.Item
+                as="div"
+                icon={HiArrowSmRight}
+                className="cursor-pointer"
+              >
                 Sign Out
               </Sidebar.Item>
             </Link>
