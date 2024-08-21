@@ -13,9 +13,13 @@ import "react-circular-progressbar/dist/styles.css";
 
 export default function DashProfile() {
   const { currentUser } = useSelector((state) => state.user); // mengambil informasi data pengguna
+
   const [imageFile, setImageFile] = useState(null); // menyimpan gambar yang dipilih pengguna
+
   const [imageFileUrl, setImageFileUrl] = useState(null); // menyimpan url gambar yang dipilih pengguna
+
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null); // menyimpan upload progress img yang dipilih pengguna
+
   const [imageFileUploadError, setImageFileUploadError] = useState(null); // menyimpan pesan kesalahan img
 
   const filePickerRef = useRef(); // Referensi DOM untuk elemen input file, memungkinkan kita untuk memicu pemilihan file secara manual.
@@ -119,7 +123,7 @@ export default function DashProfile() {
             className="relative w-32 h-32 self-center cursor-pointer shadow-md overflow-hidden rounded-full"
             onClick={() => filePickerRef.current.click()} // tombol click agar pengguna bisa ganti gambar dan menampilkannya
           >
-            {/* jika img nya ada dan berhasil diupload */}
+            {/* jika img nya ada, dan berhasil diupload */}
             {imageFileUploadProgress && (
               // menampilkan styling lingkaran bar pada saat proses upload img
               <CircularProgressbar
@@ -164,6 +168,7 @@ export default function DashProfile() {
           {imageFileUploadError && (
             <Alert color="failure">{imageFileUploadError}</Alert>
           )}
+          {/* end */}
 
           {/* menampilkan username */}
           <TextInput
