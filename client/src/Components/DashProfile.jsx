@@ -1,6 +1,6 @@
 import { Alert, Button, TextInput } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getDownloadURL,
   getStorage,
@@ -10,19 +10,24 @@ import {
 import { app } from "../firebase";
 import { CircularProgressbar } from "react-circular-progressbar"; // Komponen untuk menampilkan progress bar berbentuk lingkaran, menunjukkan status pengunggahan file.
 import "react-circular-progressbar/dist/styles.css";
+import {
+  updateStart,
+  updateSuccess,
+  updateFailure,
+} from "../redux/user/userSlice.js";
 
 export default function DashProfile() {
   const { currentUser } = useSelector((state) => state.user); // mengambil informasi data pengguna
-
   const [imageFile, setImageFile] = useState(null); // menyimpan gambar yang dipilih pengguna
-
   const [imageFileUrl, setImageFileUrl] = useState(null); // menyimpan url gambar yang dipilih pengguna
-
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null); // menyimpan upload progress img yang dipilih pengguna
-
   const [imageFileUploadError, setImageFileUploadError] = useState(null); // menyimpan pesan kesalahan img
-
+  const [imageFileUploading, setImageFileUploading] = useState(false);
+  const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
+  const [updateUserError, setUpdateUserError] = useState(null);
+  const [fromData, setFormData] = useState({});
   const filePickerRef = useRef(); // Referensi DOM untuk elemen input file, memungkinkan kita untuk memicu pemilihan file secara manual.
+  const dispatch = useDispatch();
 
   // function handle Image Change dipanggil ketika pengguna memilih gambar
   const handleImageChange = (e) => {
@@ -45,6 +50,7 @@ export default function DashProfile() {
 
   // function uploadImage
   const uploadImage = () => {
+    // code penyimpanan img di storage di-firebase
     // service firebase.storage {
     //     match /b/{bucket}/o {
     //       match /{allPaths=**} {
@@ -54,44 +60,37 @@ export default function DashProfile() {
     //       }
     //     }
     //   }
-
+    setImageFileUploading(true);
     setImageFileUploadError(null); // memastikan tidak ada pesan kesalahan yang ditampilkan
 
     const storage = getStorage(app); // "Mendapatkan" referensi ke Firebase Storage dari aplikasi Firebase yang telah diinisialisasi (app).
-
     const fileName = new Date().getTime() + imageFile.name; // membuat nama file yang unik dengan menggabungkan waktu saa ini, dengan nama asli file (imageFile.name).
-
     const storageRef = ref(storage, fileName); // "Membuat" referensi ke lokasi di Firebase Storage di mana file akan disimpan, menggunakan nama file yang sudah dibuat tadi.
-
     const uploadTask = uploadBytesResumable(storageRef, imageFile); // meng-upload file ke firebase storage secara bertahap
 
     // melakukan perubahan status dari proses upload image
     uploadTask.on(
       "state_changed",
-
       // (callback) yang dieksekusi saat ada perubahan status dari proses upload image
       (snapshot) => {
         // Menghitung persentase progres pengunggahan berdasarkan jumlah byte yang telah diunggah (snapshot.bytesTransferred) dan total ukuran file (snapshot.totalBytes).
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-
         // Mengatur state imageFileUploadProgress dengan nilai progres yang sudah dihitung tadi. toFixed(0) digunakan untuk membulatkan nilai ke angka bulat.
         setImageFileUploadProgress(progress.toFixed(0));
       },
-
       // (Callback) yang dijalankan jika terjadi kesalahan selama upload img
       (error) => {
         // pesan jika pengguna memasukkan img lebih besar dari 2MB
         setImageFileUploadError(
           "Could not upload image (File must be less than 2MB)"
         );
-
         // Mengatur progres pengunggahan menjadi null karena pengunggahan gagal.
         setImageFileUploadProgress(null);
-
         // kedua state ini, berfungsi untuk mengosongkan img seperti semula jika terjadi kesalahan upload image
         setImageFile(null);
         setImageFileUrl(null);
+        setImageFileUploading(false);
       },
 
       // (Callback) yang dijalankan ketika pengunggahan selesai dengan sukses
@@ -99,16 +98,62 @@ export default function DashProfile() {
         // Mendapatkan URL download untuk file yang baru saja diunggah dari Firebase Storage, dan kemudian menyimpannya dalam state imageFileUrl
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setImageFileUrl(downloadURL); // menampilkan gambar yang telah diunggah di halaman.
+          setFormData({ ...fromData, profilePicture: downloadURL });
+          setImageFileUploading(false);
         });
       }
     );
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...fromData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdateUserError(null);
+    setUpdateUserSuccess(null);
+
+    if (Object.keys(fromData).length === 0) {
+      setUpdateUserError("No changes made");
+      return;
+    }
+
+    if (imageFileUploading) {
+      setUpdateUserError("Please wait for image file upload");
+      return;
+    }
+
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(fromData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        dispatch(updateFailure(data.message));
+        setUpdateUserError(data.message);
+      } else {
+        dispatch(updateSuccess(data));
+        setUpdateUserSuccess("User's profile updated successfully");
+      }
+    } catch (error) {
+      dispatch(updateFailure(error.message));
+      setUpdateUserError(error.message);
+    }
   };
 
   return (
     <>
       <div className="max-w-lg mx-auto p-3 w-full">
         <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
-        <form className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* upload new img */}
           <input
             type="file"
@@ -176,6 +221,7 @@ export default function DashProfile() {
             id="username"
             placeholder="Username"
             defaultValue={currentUser.username}
+            onChange={handleChange}
           />
 
           {/* menampilkan email */}
@@ -184,10 +230,16 @@ export default function DashProfile() {
             id="email"
             placeholder="Email"
             defaultValue={currentUser.email}
+            onChange={handleChange}
           />
 
           {/* menampikan password */}
-          <TextInput type="password" id="password" placeholder="Password" />
+          <TextInput
+            type="password"
+            id="password"
+            placeholder="Password"
+            onChange={handleChange}
+          />
 
           <Button type="submit" gradientDuoTone="purpleToBlue" outline>
             Update
@@ -197,6 +249,16 @@ export default function DashProfile() {
           <span className="cursor-pointer">Delete Account</span>
           <span className="cursor-pointer">Sign Out</span>
         </div>
+        {updateUserSuccess && (
+          <Alert color="success" className="mt-5">
+            {updateUserSuccess}
+          </Alert>
+        )}
+        {updateUserError && (
+          <Alert color="failure" className="mt-5">
+            {updateUserError}
+          </Alert>
+        )}
       </div>
     </>
   );
