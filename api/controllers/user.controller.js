@@ -49,13 +49,15 @@ export const updateUser = async (req, res, next) => {
 
     // validasi username harus huruf kecil
     if (req.body.username !== req.body.username.toLowerCase()) {
-      return next(errorHandler(400, "Username must be lowercase"));
+      return next(
+        errorHandler(400, "Nama pengguna harus menggunakan huruf kecil")
+      );
     }
 
     // validasi hanya huruf dan angka
     if (!/^[a-zA-Z0-9]+$/.test(req.body.username)) {
       return next(
-        errorHandler(400, "Username can only contain letters and numbers")
+        errorHandler(400, "Nama pengguna hanya boleh berisi huruf dan angka")
       );
     }
   }
@@ -87,12 +89,22 @@ export const updateUser = async (req, res, next) => {
 // Function Delete User
 export const deleteUser = async (req, res, next) => {
   if (req.user.id !== req.params.userId) {
-    return next(errorHandler(403, "You are not allowed to delete this user"));
+    return next(
+      errorHandler(403, "Anda tidak diizinkan untuk menghapus pengguna ini")
+    );
   }
 
   try {
     await User.findByIdAndDelete(req.params.userId);
-    res.status(200).json("User has been deleted");
+    res.status(200).json("Pengguna telah dihapus");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signout = (req, res, next) => {
+  try {
+    res.clearCookie("access_token").status(200).json("Pengguna telah keluar");
   } catch (error) {
     next(error);
   }

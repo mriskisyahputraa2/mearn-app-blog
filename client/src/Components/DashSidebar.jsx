@@ -1,11 +1,14 @@
 import { Sidebar } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { HiUser, HiArrowSmRight } from "react-icons/hi";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
+import { signoutSuccess } from "../redux/user/userSlice";
 
 export default function DashSidebar() {
   const location = useLocation(); // mengambil infomasi lokasi saat ini dan query string
   const [tab, setTab] = useState("");
+  const dispatch = useDispatch();
 
   // menjalankan location.search untuk mengambil query string
   useEffect(() => {
@@ -18,6 +21,24 @@ export default function DashSidebar() {
     }
   }, [location.search]);
 
+  // function signout/keluar
+  const handleSignout = async () => {
+    try {
+      const res = await fetch(`/api/user/signout`, {
+        method: "POST",
+      });
+
+      const data = res.json();
+
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSuccess());
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   return (
     <>
       <Sidebar className="w-full md:w-56">
@@ -37,6 +58,7 @@ export default function DashSidebar() {
                 as="div"
                 icon={HiArrowSmRight}
                 className="cursor-pointer"
+                onClick={handleSignout}
               >
                 Sign Out
               </Sidebar.Item>
