@@ -9,50 +9,71 @@ const initialState = {
 
 // userSlice mendefinisikan "nama slice (name)", "initialState", dan "reducers" yang berisi tiga action:
 const userSlice = createSlice({
-  name: "user",
-  initialState,
+  name: "user", // nama slice
+  initialState, // nilai awal dari state untuk slice ini
+
+  // kumpulan fungsi untuk mengubah state berdasarkan aksi (actions).
   reducers: {
-    // login jalan(signInStart), mengubah (loading menjadi "true"),
-    // mengatur (error menjadi "null")
+    // Mengubah "loading" menjadi "true" dan mengatur "error" menjadi "null" saat proses login dimulai.
     signInStart: (state) => {
       state.loading = true;
       state.error = null;
     },
 
-    // login berhasil(signInSuccess), mengisi (currentUser dengan data yang berhasil login)
-    // mengubah (loading menjadi "false")
-    // mengatur (error menjadi "null")
+    // Mengisi "currentUser" dengan data dari login yang berhasil, mengatur "loading" menjadi "false", dan "error" menjadi "null".
     signInSuccess: (state, action) => {
       state.currentUser = action.payload;
       state.loading = false;
       state.error = null;
     },
 
-    // login gagal(signInFailure), Mengubah (loading menjadi "false") dan (mengisi error dengan pesan kesalahan jika sign-in gagal).
+    // mengatur "loading" menjadi "false" dan mengisi "error" dengan pesan kesalahan jika login gagal.
     signInFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },
 
+    // mengubah "loading" menjadi "true" dan mengatur "error" menjadi "null" saat proses update data pengguna dimulai
     updateStart: (state) => {
       state.loading = true;
       state.error = null;
     },
 
+    // mengisi "currentUser" dengan data dari update yang berhasil, mengatur "loading" menjadi "false", dan "error" menjadi "null".
     updateSuccess: (state, action) => {
       state.currentUser = action.payload;
       state.loading = false;
       state.error = null;
     },
 
+    // mengatur "loading" menjadi "false" dan mengisi "error" dengan pesan kesalahan jika update gagal.
     updateFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    // mengubah "loading" menjadi "true" dan mengatur "error" menjadi "null" saat proses update data pengguna dimulai
+    deleteUserStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+
+    // menghapus "currentUser" data yang berhasil, mengatur "loading" menjadi "false", dan "error" menjadi "null".
+    deleteUserSuccess: (state) => {
+      state.currentUser = null;
+      state.loading = false;
+      state.error = null;
+    },
+
+    // menangani situasi ketika penghapusan pengguna gagal.
+    deleteUserFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },
   },
 });
 
-// action signInStart, signInSuccess, dan signInFailure diekspor agar bisa digunakan di komponen lain.
+// mengekspor actions sehingga dapat digunakan di komponen React untuk memicu perubahan state.
 export const {
   signInStart,
   signInSuccess,
@@ -60,7 +81,10 @@ export const {
   updateStart,
   updateSuccess,
   updateFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure,
 } = userSlice.actions;
 
-// Reducer dari userSlice diekspor sebagai default untuk digunakan di store Redux
+// mengekspor reducer sebagai default export sehingga dapat digunakan di Redux store untuk mengelola state terkait pengguna.
 export default userSlice.reducer;

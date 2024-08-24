@@ -1,4 +1,4 @@
-import { Alert, Button, TextInput } from "flowbite-react";
+import { Alert, Button, Modal, TextInput } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -6,126 +6,132 @@ import {
   getStorage,
   ref,
   uploadBytesResumable,
-} from "firebase/storage"; // Fungsi-fungsi dari Firebase untuk mengelola penyimpanan file (gambar) dan mengunggahnya ke Firebase Storage.
-import { app } from "../firebase";
-import { CircularProgressbar } from "react-circular-progressbar"; // Komponen untuk menampilkan progress bar berbentuk lingkaran, menunjukkan status pengunggahan file.
-import "react-circular-progressbar/dist/styles.css";
+} from "firebase/storage"; // mengimpor fungsi-fungsi Firebase Storage untuk mengelola penyimpanan file dan mengunggahnya
+import { app } from "../firebase"; // Mengimpor konfigurasi aplikasi Firebase
+import { CircularProgressbar } from "react-circular-progressbar"; // Komponen progress bar berbentuk lingkaran.
+import "react-circular-progressbar/dist/styles.css"; // mengimpor style untuk CircularProgressbar.
 import {
   updateStart,
   updateSuccess,
   updateFailure,
-} from "../redux/user/userSlice.js";
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure,
+} from "../redux/user/userSlice.js"; // mengimpor action Redux untuk mengelola status pembaruan pengguna.
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 export default function DashProfile() {
-  const { currentUser } = useSelector((state) => state.user); // mengambil informasi data pengguna
+  const { currentUser, error } = useSelector((state) => state.user); // mengambil data pengguna saat ini dari Redux Store
   const [imageFile, setImageFile] = useState(null); // menyimpan gambar yang dipilih pengguna
   const [imageFileUrl, setImageFileUrl] = useState(null); // menyimpan url gambar yang dipilih pengguna
-  const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null); // menyimpan upload progress img yang dipilih pengguna
-  const [imageFileUploadError, setImageFileUploadError] = useState(null); // menyimpan pesan kesalahan img
-  const [imageFileUploading, setImageFileUploading] = useState(false);
-  const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
-  const [updateUserError, setUpdateUserError] = useState(null);
-  const [fromData, setFormData] = useState({});
-  const filePickerRef = useRef(); // Referensi DOM untuk elemen input file, memungkinkan kita untuk memicu pemilihan file secara manual.
-  const dispatch = useDispatch();
+  const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null); // menyimpan progress upload gambar
+  const [imageFileUploadError, setImageFileUploadError] = useState(null); // menyimpan pesan kesalahan upload gambar
+  const [imageFileUploading, setImageFileUploading] = useState(false); // menyimpan status apakah gambar sedang diunggah
+  const [updateUserSuccess, setUpdateUserSuccess] = useState(null); // menyimpan pesan sukses pembaruan pengguna
+  const [updateUserError, setUpdateUserError] = useState(null); // menyimpan pesan kesalahan pembaruan pengguna
+  const [showModal, setShowModal] = useState(false);
+  const [fromData, setFormData] = useState({}); // // menyimpan data formulir pengguna
+  const filePickerRef = useRef(); // Referensi DOM untuk input file
+  const dispatch = useDispatch(); // Dispatch action Redux untuk mengubah state
 
-  // function handle Image Change dipanggil ketika pengguna memilih gambar
+  // function handleImageChange
   const handleImageChange = (e) => {
-    const file = e.target.files[0]; // mengambil file img pertama yang diinputkan oleh pengguna
+    const file = e.target.files[0]; // mengambil file pertama yang dipilih pengguna.
 
-    // validasi, apakah file img ada? jika ya
+    // validasi, apakah file img ada?
     if (file) {
-      setImageFile(file); // maka state imageFile dengan img yang diinputkan, diunggah ke firebase storage
-      setImageFileUrl(URL.createObjectURL(file)); // membuat url img lokal sementera untuk ditampilkan dihalaman web, url ini akan hilang ketika browser ditutup
+      setImageFile(file); // Mengatur state dengan file gambar yang dipilih.
+      setImageFileUrl(URL.createObjectURL(file)); // membuat url img lokal sementera untuk ditampilkan dihalaman web
     }
   };
 
-  // render
+  // menjalankan efek samping setiap kali 'imageFile' berubah
   useEffect(() => {
     // validasi, jika imageFile berubah(pengguna memilih gambar baru), maka
     if (imageFile) {
-      uploadImage(); // img di upload dengan gambar yang baru
+      uploadImage(); // img di upload, dengan gambar yang baru
     }
   }, [imageFile]);
 
-  // function uploadImage
+  // function uploadImage, proses upload image
   const uploadImage = () => {
-    // code penyimpanan img di storage di-firebase
-    // service firebase.storage {
-    //     match /b/{bucket}/o {
-    //       match /{allPaths=**} {
-    //         allow read, write: if
-    //         request.resource.size < 2 * 1024 * 1024 &&
-    //         request.resource.contentType.matches('image/.*')
-    //       }
-    //     }
-    //   }
+    // menetapkan status upload menjadi 'true' dan menghapus pesan kesalahan yang ada 'null'
     setImageFileUploading(true);
-    setImageFileUploadError(null); // memastikan tidak ada pesan kesalahan yang ditampilkan
+    setImageFileUploadError(null);
 
-    const storage = getStorage(app); // "Mendapatkan" referensi ke Firebase Storage dari aplikasi Firebase yang telah diinisialisasi (app).
-    const fileName = new Date().getTime() + imageFile.name; // membuat nama file yang unik dengan menggabungkan waktu saa ini, dengan nama asli file (imageFile.name).
-    const storageRef = ref(storage, fileName); // "Membuat" referensi ke lokasi di Firebase Storage di mana file akan disimpan, menggunakan nama file yang sudah dibuat tadi.
-    const uploadTask = uploadBytesResumable(storageRef, imageFile); // meng-upload file ke firebase storage secara bertahap
+    const storage = getStorage(app); // mendapatkan referensi ke Firebase Storage
+    const fileName = new Date().getTime() + imageFile.name; // membuat nama file yang unik
+    const storageRef = ref(storage, fileName); // membuat referensi penyimpanan di Firebase Storage
+    const uploadTask = uploadBytesResumable(storageRef, imageFile); // mengunggah file ke firebase storage
 
-    // melakukan perubahan status dari proses upload image
+    // melakukan perubahan status dari proses upload image, ada tiga callback:
     uploadTask.on(
       "state_changed",
-      // (callback) yang dieksekusi saat ada perubahan status dari proses upload image
+
+      // callback progress upload image
       (snapshot) => {
-        // Menghitung persentase progres pengunggahan berdasarkan jumlah byte yang telah diunggah (snapshot.bytesTransferred) dan total ukuran file (snapshot.totalBytes).
+        // Menghitung persentase progres
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        // Mengatur state imageFileUploadProgress dengan nilai progres yang sudah dihitung tadi. toFixed(0) digunakan untuk membulatkan nilai ke angka bulat.
-        setImageFileUploadProgress(progress.toFixed(0));
+        setImageFileUploadProgress(progress.toFixed(0)); // mengatur state progres upload
       },
-      // (Callback) yang dijalankan jika terjadi kesalahan selama upload img
+
+      // callback jika ada kesalahan
       (error) => {
         // pesan jika pengguna memasukkan img lebih besar dari 2MB
         setImageFileUploadError(
-          "Could not upload image (File must be less than 2MB)"
+          "Tidak dapat mengunggah gambar (File harus kurang dari 2MB)"
         );
-        // Mengatur progres pengunggahan menjadi null karena pengunggahan gagal.
+
+        // menetapkan progres upload menjadi 'null', dan mereset state terkait gambar
         setImageFileUploadProgress(null);
-        // kedua state ini, berfungsi untuk mengosongkan img seperti semula jika terjadi kesalahan upload image
         setImageFile(null);
         setImageFileUrl(null);
         setImageFileUploading(false);
       },
 
-      // (Callback) yang dijalankan ketika pengunggahan selesai dengan sukses
+      // callback sukses upload image
       () => {
         // Mendapatkan URL download untuk file yang baru saja diunggah dari Firebase Storage, dan kemudian menyimpannya dalam state imageFileUrl
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setImageFileUrl(downloadURL); // menampilkan gambar yang telah diunggah di halaman.
-          setFormData({ ...fromData, profilePicture: downloadURL });
+          setImageFileUrl(downloadURL); // menyimpan URL gambar yang diunggah
+          setFormData({ ...fromData, profilePicture: downloadURL }); // memperbarui state form dengan URL gambar
           setImageFileUploading(false);
         });
       }
     );
   };
 
+  // function handleChange, untuk menangani perubahan input dari form
   const handleChange = (e) => {
     setFormData({ ...fromData, [e.target.id]: e.target.value });
   };
 
+  // function handleSubmit, untuk menangani pengiriman form
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // menetapkan state untuk mereset pesan kesalahan atau sukses sebelumnya
     setUpdateUserError(null);
     setUpdateUserSuccess(null);
 
+    // validasi, apakah ada perubahan dari form data, jika tidak
     if (Object.keys(fromData).length === 0) {
-      setUpdateUserError("No changes made");
+      setUpdateUserError("Tidak ada perubahan yang dilakukan");
       return;
     }
 
+    // validasi, apakah pengunggahan gambar sedang berlangsung
     if (imageFileUploading) {
-      setUpdateUserError("Please wait for image file upload");
+      setUpdateUserError("Mohon tunggu hingga file gambar diunggah");
       return;
     }
 
     try {
+      // memulai update
       dispatch(updateStart());
+
+      // mengirim API PUT ke server, untuk memperbaruhi profile pengguna berdasarkan id dengan data 'formData'
       const res = await fetch(`/api/user/update/${currentUser._id}`, {
         method: "PUT",
         headers: {
@@ -136,16 +142,41 @@ export default function DashProfile() {
 
       const data = await res.json();
 
+      // validasi, apakah prosesnya berhasil? jika tidak
       if (!res.ok) {
-        dispatch(updateFailure(data.message));
+        dispatch(updateFailure(data.message)); // panggil updateFailure dengan pesan kesalahan
         setUpdateUserError(data.message);
+
+        // jika berhasil
       } else {
-        dispatch(updateSuccess(data));
-        setUpdateUserSuccess("User's profile updated successfully");
+        dispatch(updateSuccess(data)); // updateSuccess dipanggil
+        setUpdateUserSuccess("Profil pengguna berhasil diperbarui");
       }
+
+      // jika ada kesalahan selama pengiriman data, tampilkan pesan kesalahan
     } catch (error) {
       dispatch(updateFailure(error.message));
       setUpdateUserError(error.message);
+    }
+  };
+
+  // delete user
+  const handleDeleteUser = async () => {
+    setShowModal(false);
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        dispatch(deleteUserFailure(data.message));
+      } else {
+        dispatch(deleteUserSuccess(data));
+      }
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
     }
   };
 
@@ -246,19 +277,56 @@ export default function DashProfile() {
           </Button>
         </form>
         <div className="text-red-500 flex justify-between mt-5">
-          <span className="cursor-pointer">Delete Account</span>
+          <span className="cursor-pointer" onClick={() => setShowModal(true)}>
+            Delete Account
+          </span>
           <span className="cursor-pointer">Sign Out</span>
         </div>
+
+        {/* menampilkan pesan alert 'success' jika berhasil di update  */}
         {updateUserSuccess && (
           <Alert color="success" className="mt-5">
             {updateUserSuccess}
           </Alert>
         )}
+
+        {/* menampilkan pesan alert 'error' jika gagal di update  */}
         {updateUserError && (
           <Alert color="failure" className="mt-5">
             {updateUserError}
           </Alert>
         )}
+        {error && (
+          <Alert color="failure" className="mt-5">
+            {error}
+          </Alert>
+        )}
+
+        <Modal
+          show={showModal}
+          onClose={() => setShowModal(false)}
+          popup
+          size="md"
+        >
+          <Modal.Header />
+
+          <Modal.Body>
+            <div className="text-center">
+              <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
+              <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
+                Are you sure want to delete your account?
+              </h3>
+              <div className="flex justify-center gap-4">
+                <Button color="failure" onClick={handleDeleteUser}>
+                  Yes, I'm sure
+                </Button>
+                <Button color="gray" onClick={() => setShowModal(false)}>
+                  No, cancel
+                </Button>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
       </div>
     </>
   );

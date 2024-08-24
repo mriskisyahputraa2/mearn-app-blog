@@ -6,35 +6,53 @@ export const test = (req, res) => {
   res.json({ message: "API is working" });
 };
 
+// Functions Update data User
 export const updateUser = async (req, res, next) => {
+  // mengecek apakah pengguna yang sedang login adalah pemilik akun yang akan diupdate
   if (req.user.id !== req.params.userId) {
-    return next(errorHandler(403, "You are not allowed to update this user"));
+    return next(
+      errorHandler(403, "Anda tidak diizinkan untuk memperbarui pengguna ini")
+    ); // Jika bukan, kirim error 403
   }
 
-  // Validasi password jika diubah
+  // memeriksa apakah password diubah dan melakukan validasi
   if (req.body.password) {
+    // validasii panjang password
     if (req.body.password.length < 6) {
-      return next(errorHandler(400, "Password must be at least 6 characters"));
-    }
-    req.body.password = bcrypt.hashSync(req.body.password, 10);
-  }
-
-  // Validasi username jika diubah
-  if (req.body.username) {
-    if (req.body.username.length < 7 || req.body.username.length > 20) {
       return next(
-        errorHandler(400, "Username must be between 7 and 20 characters")
+        errorHandler(400, "Kata sandi minimal harus terdiri dari 6 karakter")
       );
     }
 
-    if (req.body.username.includes(" ")) {
-      return next(errorHandler(400, "Username cannot contain spaces"));
+    // hash password sebelum disimpan
+    req.body.password = bcrypt.hashSync(req.body.password, 10);
+  }
+
+  // memeriksa apakah username diubah dan melakukan validasi
+  if (req.body.username) {
+    // validasi panjang username
+    if (req.body.username.length < 7 || req.body.username.length > 20) {
+      return next(
+        errorHandler(
+          400,
+          "Nama pengguna harus terdiri dari 7 hingga 20 karakter"
+        )
+      );
     }
 
+    // validasi tidak boleh ada spasi dalam username
+    if (req.body.username.includes(" ")) {
+      return next(
+        errorHandler(400, "Nama pengguna tidak boleh mengandung spasi")
+      );
+    }
+
+    // validasi username harus huruf kecil
     if (req.body.username !== req.body.username.toLowerCase()) {
       return next(errorHandler(400, "Username must be lowercase"));
     }
 
+    // validasi hanya huruf dan angka
     if (!/^[a-zA-Z0-9]+$/.test(req.body.username)) {
       return next(
         errorHandler(400, "Username can only contain letters and numbers")
@@ -43,10 +61,11 @@ export const updateUser = async (req, res, next) => {
   }
 
   try {
-    // Update user
+    // melakukan update data pengguna di database
     const updateUser = await User.findByIdAndUpdate(
-      req.params.userId,
+      req.params.userId, // berdasarkan ID pengguna yang akan diupdate
       {
+        // menetapkan data baru sesuai yang diinput oleh pengguna
         $set: {
           username: req.body.username,
           email: req.body.email,
@@ -54,17 +73,18 @@ export const updateUser = async (req, res, next) => {
           password: req.body.password,
         },
       },
-      { new: true }
+      { new: true } // mengambil data pengguna setalah diupdate
     );
 
-    // Menghilangkan password dari respon
+    // menghilangkan password dari respon yang akan dikirim ke pengguna
     const { password, ...rest } = updateUser._doc;
-    res.status(200).json(rest);
+    res.status(200).json(rest); // mengirim response sukses dengan data yang berhasil diupdate
   } catch (error) {
-    next(error);
+    next(error); // menangani error yang terjadi saat proses pembaruan
   }
 };
 
+// Function Delete User
 export const deleteUser = async (req, res, next) => {
   if (req.user.id !== req.params.userId) {
     return next(errorHandler(403, "You are not allowed to delete this user"));
