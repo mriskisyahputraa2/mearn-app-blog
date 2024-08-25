@@ -310,7 +310,6 @@ export default function DashProfile() {
                 type="button"
                 gradientDuoTone="purpleToPink"
                 className="w-full"
-                outline
               >
                 Create a post
               </Button>
