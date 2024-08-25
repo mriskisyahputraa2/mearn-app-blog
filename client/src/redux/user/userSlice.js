@@ -71,6 +71,7 @@ const userSlice = createSlice({
       state.error = action.payload;
     },
 
+    // menangani signout dengan meng-null kan currentUser, error dan loading.
     signoutSuccess: (state) => {
       state.currentUser = null;
       state.error = null;

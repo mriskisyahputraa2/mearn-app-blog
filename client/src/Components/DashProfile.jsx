@@ -184,19 +184,22 @@ export default function DashProfile() {
   // function signout/keluar
   const handleSignout = async () => {
     try {
+      // mendapatkan API signout
       const res = await fetch(`/api/user/signout`, {
         method: "POST",
       });
 
+      // mengambil data response dalam format JSON
       const data = res.json();
 
+      // validasi, apakah data response tidak OK
       if (!res.ok) {
-        console.log(data.message);
+        console.log(data.message); // jika tidak OK, cetak pesan kesalahan diserver
       } else {
-        dispatch(signoutSuccess());
+        dispatch(signoutSuccess()); // jika response OK, logout pengguna dari aplikasi
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error.message); // cetak pesan kesalahan yang terjadi selama proses signout
     }
   };
 

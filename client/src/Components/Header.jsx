@@ -10,23 +10,27 @@ const Header = () => {
   const path = useLocation().pathname;
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user); // mendapatan data pengguna dari proses slice yang berhasil
-  const { theme } = useSelector((state) => state.theme);
+  const { theme } = useSelector((state) => state.theme); // dark mode
 
+  // function signout/keluar
   const handleSignout = async () => {
     try {
-      const res = await fetch("/api/user/signout/", {
+      // mendapatkan API signout
+      const res = await fetch(`/api/user/signout`, {
         method: "POST",
       });
 
+      // mengambil data response dalam format JSON
       const data = res.json();
 
+      // validasi, apakah data response tidak OK
       if (!res.ok) {
-        console.log(data.message);
+        console.log(data.message); // jika tidak OK, cetak pesan kesalahan diserver
       } else {
-        dispatch(signoutSuccess());
+        dispatch(signoutSuccess()); // jika response OK, logout pengguna dari aplikasi
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error.message); // cetak pesan kesalahan yang terjadi selama proses signout
     }
   };
 
@@ -60,6 +64,7 @@ const Header = () => {
             pill
             onClick={() => dispatch(toggleTheme())}
           >
+            {/* validasi dark mode */}
             {theme === "light" ? <FaSun /> : <FaMoon />}
           </Button>
 

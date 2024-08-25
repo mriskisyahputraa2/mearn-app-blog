@@ -2,10 +2,6 @@ import User from "../models/user.model.js";
 import { errorHandler } from "../utils/error.js";
 import bcrypt from "bcrypt";
 
-export const test = (req, res) => {
-  res.json({ message: "API is working" });
-};
-
 // Functions Update data User
 export const updateUser = async (req, res, next) => {
   // mengecek apakah pengguna yang sedang login adalah pemilik akun yang akan diupdate
@@ -88,6 +84,7 @@ export const updateUser = async (req, res, next) => {
 
 // Function Delete User
 export const deleteUser = async (req, res, next) => {
+  // validasi, apakah ID pengguna yang sedang login berbeda dari ID pengguna yang dihapus?
   if (req.user.id !== req.params.userId) {
     return next(
       errorHandler(403, "Anda tidak diizinkan untuk menghapus pengguna ini")
@@ -95,16 +92,18 @@ export const deleteUser = async (req, res, next) => {
   }
 
   try {
-    await User.findByIdAndDelete(req.params.userId);
-    res.status(200).json("Pengguna telah dihapus");
+    await User.findByIdAndDelete(req.params.userId); // mencari pengguna berdasarkan userId dari database
+    res.status(200).json("Pengguna telah dihapus"); // response jika berhasil
   } catch (error) {
-    next(error);
+    next(error); // response jika gagal/tidak ada
   }
 };
 
+// function signout/keluar aplikasi
 export const signout = (req, res, next) => {
   try {
-    res.clearCookie("access_token").status(200).json("Pengguna telah keluar");
+    // jika berhasil
+    res.clearCookie("access_token").status(200).json("Pengguna telah keluar"); // menghapus cookie bernama "access_token"
   } catch (error) {
     next(error);
   }
