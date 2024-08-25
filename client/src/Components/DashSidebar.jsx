@@ -57,6 +57,7 @@ export default function DashSidebar() {
               >
                 Profile
               </Sidebar.Item>
+
               <Sidebar.Item
                 as="div"
                 icon={HiArrowSmRight}
