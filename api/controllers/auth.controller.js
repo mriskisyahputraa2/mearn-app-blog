@@ -71,7 +71,10 @@ export const signin = async (req, res, next) => {
     }
 
     // membuat token jwt
-    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { id: validUser._id, isAdmin: validUser.isAdmin },
+      process.env.JWT_SECRET
+    );
 
     // tidak menampilkan password saat login berhasil(untuk keamanan)
     const { password: pass, ...rest } = validUser._doc;
@@ -99,7 +102,10 @@ export const google = async (req, res, next) => {
     // validasi, jika user ada
     if (user) {
       // membuat token
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { id: user.id, isAdmin: user.isAdmin },
+        process.env.JWT_SECRET
+      );
       const { password, ...rest } = user._doc; // dihilangkan dari objek pengguna yang akan dikirimkan ke klien
 
       // jika berhasil tampilkan data nya
@@ -134,7 +140,10 @@ export const google = async (req, res, next) => {
       // setelah data berhasil, baru disimpan kedalam database mongodb
       await newUser.save();
       // Token JWT dibuat untuk pengguna baru dengan cara yang sama seperti pada pengguna yang sudah ada.
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { id: newUser._id, isAdmin: newUser.isAdmin },
+        process.env.JWT_SECRET
+      );
       const { password, ...rest } = user._doc;
 
       res
