@@ -1,6 +1,7 @@
 import Post from "../models/post.model.js";
 import { errorHandler } from "../utils/error.js";
 
+// function membuat posts
 export const createPost = async (req, res, next) => {
   console.log(req.user);
 
@@ -39,17 +40,21 @@ export const createPost = async (req, res, next) => {
   }
 };
 
+// function mendatapakan semua data posts
 export const getPosts = async (req, res, next) => {
   try {
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    const limit = parseInt(req.query.limit) || 9;
-    const sortDirection = req.query.order === "asc" ? 1 : -1;
-    const posts = await Post.find({
-      ...(req.query.userId && { userId: req.query.userId }),
-      ...(req.query.category && { category: req.query.category }),
-      ...(req.query.slug && { slug: req.query.slug }),
-      ...(req.query.postId && { _id: req.query.postId }),
+    const startIndex = parseInt(req.query.startIndex) || 0; // mengambil nilai dari query string, jika tidak ada, default ke 0
+    const limit = parseInt(req.query.limit) || 9; // mengambil nilai limit dari query string, jika tidak adam default ke 9
+    const sortDirection = req.query.order === "asc" ? 1 : -1; // menentukan arah pengurutan, 1 untuk ascending dan -1 untuk descending
 
+    // mencari postingan di database
+    const posts = await Post.find({
+      ...(req.query.userId && { userId: req.query.userId }), // jika ada "userId" di query string, tambahkan ke kondisi pencarian
+      ...(req.query.category && { category: req.query.category }), // jika ada "category" di query string, tambahkan ke kondisi pencarian
+      ...(req.query.slug && { slug: req.query.slug }), // Jika ada "slug" di query string, tambahkan ke kondisi pencarian
+      ...(req.query.postId && { _id: req.query.postId }), // Jika ada "postId" di query string, tambahkan ke kondisi pencarian
+
+      // Jika ada "searchTerm" di query string, cari di "title" atau "content" yang mengandung kata tersebut [i].
       ...(req.query.searchTerm && {
         $or: [
           { title: { $regex: req.query.searchTerm, $options: "i" } },
@@ -57,29 +62,35 @@ export const getPosts = async (req, res, next) => {
         ],
       }),
     })
-      .sort({ updateAt: sortDirection })
-      .skip(startIndex)
-      .limit(limit);
 
-    const totalPosts = await Post.countDocuments();
+      .sort({ updateAt: sortDirection }) // Mengurutkan hasil pencarian berdasarkan "updateAt" dengan arah yang ditentukan.
+      .skip(startIndex) // Melewati sejumlah postingan berdasarkan "startIndex".
+      .limit(limit); // Membatasi jumlah postingan yang diambil berdasarkan "limit".
 
-    const now = new Date();
+    // Menghitung Postingan dalam Sebulan Terakhir
+    const totalPosts = await Post.countDocuments(); // Menghitung total jumlah postingan di database.
+    const now = new Date(); // Mendapatkan tanggal dan waktu saat ini.
 
+    // Mendapatkan tanggal satu bulan yang lalu dari sekarang.
     const oneMothAgo = new Date(
       now.getFullYear(),
       now.getMonth() - 1,
       now.getDate()
     );
 
+    // menghitung jumlah postingan yang dibuat dalam sebulan terakhir
     const lastMontPosts = await Post.countDocuments({
       createAt: { $gte: oneMothAgo },
     });
 
+    // response berhasil
     res.status(200).json({
       posts,
       totalPosts,
       lastMontPosts,
     });
+
+    // menangani error
   } catch (error) {
     next(error);
   }
