@@ -14,7 +14,7 @@ import "react-circular-progressbar/dist/styles.css";
 import { useNavigate } from "react-router-dom";
 
 export default function CreatePost() {
-  // mendefinisikan state untuk file, progress upload gambar, error upload gambar, dan data form
+  // mendefinisikan state untuk file, progress upload gambar, error upload gambar, data form dan menyimpna pesan error
   const [file, setFile] = useState(null);
   const [ImageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
@@ -70,10 +70,12 @@ export default function CreatePost() {
     }
   };
 
+  // function submit
   const handleSumbit = async (e) => {
     e.preventDefault();
 
     try {
+      // mengirim permintaan POST ke endpoint "create"
       const res = await fetch("/api/post/create", {
         method: "POST",
         headers: {
@@ -82,17 +84,21 @@ export default function CreatePost() {
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
+      const data = await res.json(); // mengubaha response menjadi format JSON
 
+      // validasi, jika response tidak berhasil, tampilkan pesan kesalahan
       if (!res.ok) {
         setPublishError(data.message);
         return;
       }
 
+      // validasi, jika response berhasil bawa pengguna ke halaman "slug" sesuai title yang dimasukkan
       if (res.ok) {
         setPublishError(null);
         navigate(`/post/${data.slug}`);
       }
+
+      // pesan jika terjadi kesalahan saat proses submit
     } catch (error) {
       setPublishError("Something went wrong", error);
     }
@@ -114,6 +120,7 @@ export default function CreatePost() {
               id="title"
               className="flex-1"
               onChange={(e) =>
+                // mengubah formData setiap kali ada perubahan diinput
                 setFormData({ ...formData, title: e.target.value })
               }
             />
@@ -185,6 +192,8 @@ export default function CreatePost() {
           <Button type="submit" gradientDuoTone="purpleToPink">
             Publish
           </Button>
+
+          {/* menampilkan pesan error */}
           {publishError && (
             <Alert className="mt-5" color="failure">
               {publishError}
