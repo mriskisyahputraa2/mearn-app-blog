@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import DashSidebar from "../../Components/DashSidebar";
 import DashProfile from "../../Components/DashProfile";
+import DashPosts from "../../Components/DashPosts";
 
 export default function Dashboard() {
   const location = useLocation(); // mengambil infomasi lokasi saat ini dan query string
@@ -27,10 +28,12 @@ export default function Dashboard() {
           {/* End Sidebar */}
         </div>
 
-        {/* Start Profile */}
+        {/* Profile */}
         {/* jika nilai tab adalah "profile", maka komponen DashProfile akan di-render, yang menampilkan profil pengguna. */}
         {tab === "profile" && <DashProfile />}
-        {/* End Profile */}
+
+        {/* Post */}
+        {tab === "posts" && <DashPosts />}
       </div>
     </>
   );
