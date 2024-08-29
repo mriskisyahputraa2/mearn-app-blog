@@ -3,8 +3,6 @@ import { errorHandler } from "../utils/error.js";
 
 // function membuat posts
 export const createPost = async (req, res, next) => {
-  console.log(req.user);
-
   // validasi, apakah pengguna adalah "admin"
   if (!req.user.isAdmin) {
     return next(
@@ -92,6 +90,21 @@ export const getPosts = async (req, res, next) => {
     });
 
     // menangani error
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deletePost = async (req, res, next) => {
+  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    return next(
+      errorHandler(403, "Anda tidak diizinkan menghapus postingan ini")
+    );
+  }
+
+  try {
+    await Post.findByIdAndDelete(req.params.postId);
+    res.status(200).json("Postingan telah dihapus");
   } catch (error) {
     next(error);
   }
