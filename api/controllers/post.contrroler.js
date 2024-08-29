@@ -43,11 +43,12 @@ export const createPost = async (req, res, next) => {
 // function mendatapakan semua data posts
 export const getPosts = async (req, res, next) => {
   try {
+    // inisialisasi searching posts
     const startIndex = parseInt(req.query.startIndex) || 0; // mengambil nilai dari query string, jika tidak ada, default ke 0
-    const limit = parseInt(req.query.limit) || 9; // mengambil nilai limit dari query string, jika tidak adam default ke 9
+    const limit = parseInt(req.query.limit) || 9; // mengambil nilai limit dari query string, jika tidak ada, default ke 9
     const sortDirection = req.query.order === "asc" ? 1 : -1; // menentukan arah pengurutan, 1 untuk ascending dan -1 untuk descending
 
-    // mencari postingan di database
+    // mencari(search) postingan di database
     const posts = await Post.find({
       ...(req.query.userId && { userId: req.query.userId }), // jika ada "userId" di query string, tambahkan ke kondisi pencarian
       ...(req.query.category && { category: req.query.category }), // jika ada "category" di query string, tambahkan ke kondisi pencarian
@@ -65,11 +66,11 @@ export const getPosts = async (req, res, next) => {
 
       .sort({ updateAt: sortDirection }) // Mengurutkan hasil pencarian berdasarkan "updateAt" dengan arah yang ditentukan.
       .skip(startIndex) // Melewati sejumlah postingan berdasarkan "startIndex".
-      .limit(limit); // Membatasi jumlah postingan yang diambil berdasarkan "limit".
+      .limit(limit); // Membatasi jumlah postingan yang ditampilkan ke halaman, diambil berdasarkan "limit".
 
-    // Menghitung Postingan dalam Sebulan Terakhir
-    const totalPosts = await Post.countDocuments(); // Menghitung total jumlah postingan di database.
-    const now = new Date(); // Mendapatkan tanggal dan waktu saat ini.
+    // inisialisasi, menghitung Postingan dalam Sebulan Terakhir
+    const totalPosts = await Post.countDocuments(); // menghitung total jumlah postingan di database.
+    const now = new Date(); // mendapatkan tanggal dan waktu saat ini.
 
     // Mendapatkan tanggal satu bulan yang lalu dari sekarang.
     const oneMothAgo = new Date(
