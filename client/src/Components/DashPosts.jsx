@@ -64,7 +64,6 @@ export default function DashPosts() {
       );
 
       const data = await res.json();
-      console.log(data);
 
       if (!res.ok) {
         console.log(data.message);

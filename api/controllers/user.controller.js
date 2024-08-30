@@ -84,8 +84,7 @@ export const updateUser = async (req, res, next) => {
 
 // Function Delete User
 export const deleteUser = async (req, res, next) => {
-  // validasi, apakah ID pengguna yang sedang login berbeda dari ID pengguna yang dihapus?
-  if (req.user.id !== req.params.userId) {
+  if (!req.user.isAdmin && req.user.id !== req.params.userId) {
     return next(
       errorHandler(403, "Anda tidak diizinkan untuk menghapus pengguna ini")
     );
