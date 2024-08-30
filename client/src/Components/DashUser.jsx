@@ -12,12 +12,17 @@ export default function DashUsers() {
   const [userIdToDelete, setUserIdToDelete] = useState("");
 
   useEffect(() => {
+    // mengambil data users dari API
     const fetchUsers = async () => {
       try {
         const res = await fetch(`/api/user/getusers`);
         const data = await res.json();
+
+        // jika response nya berhasil
         if (res.ok) {
-          setUsers(data.users);
+          setUsers(data.users); // simpan data users di state 'setUsers'
+
+          // jika jumlah posts yang diambil kurang dari 9, tombol "Show More" dinonaktifkan
           if (data.users.length < 9) {
             setShowMore(false);
           }
@@ -26,21 +31,27 @@ export default function DashUsers() {
         console.log(error.message);
       }
     };
+    // validasi, jika pengguna adalah 'Admin' jalankan fungsi ini
     if (currentUser.isAdmin) {
       fetchUsers();
     }
   }, [currentUser]);
 
+  // fungsi event ketika tombol "Show More" diklik
   const handleShowMore = async () => {
-    const startIndex = users.length;
+    const startIndex = users.length; // mengambil jumlah postingan
 
     try {
+      // mengambil API "getusers" dengan parameter "startIndex" (jumlah users)
       const res = await fetch(`/api/user/getusers?startIndex=${startIndex}`);
-
       const data = await res.json();
 
+      // jika response berhasil,
       if (res.ok) {
+        // tambahkan postingan baru ke daftar dengan postingan yang sudah ada
         setUsers((prev) => [...prev, ...data.users]);
+
+        // jika jumlah posts yang diambil kurang dari 9, tombol "Show More" dinonaktifkan
         if (data.users.length < 9) {
           setShowMore(false);
         }
@@ -50,20 +61,26 @@ export default function DashUsers() {
     }
   };
 
+  // fungsi delete users
   const handleDeleteUser = async () => {
-    setShowModal(false);
+    setShowModal(false); // default show modal false
 
     try {
+      // mendapatkan API delete berdasarkan id users
       const res = await fetch(`/api/user/delete/${userIdToDelete}`, {
         method: "DELETE",
       });
 
       const data = await res.json();
 
+      // jika response gagal, tampilkan message error
       if (!res.ok) {
         console.log(data.message);
+
+        // jika tidak
       } else {
         setUsers((prev) => {
+          // delete users dan update daftar users seteleh delete behasil
           return prev.filter((user) => user._id !== userIdToDelete);
         });
       }

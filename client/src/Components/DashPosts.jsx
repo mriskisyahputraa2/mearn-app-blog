@@ -87,7 +87,7 @@ export default function DashPosts() {
 
         // jika tidak
       } else {
-        // update daftar postingan seteleh delete behasil
+        // delete posts dan update daftar postingan seteleh delete behasil
         setUserPosts((prev) => {
           return prev.filter((post) => post._id !== postIdToDelete);
         });
@@ -100,6 +100,7 @@ export default function DashPosts() {
   return (
     <>
       <div className="table-auto overflow-x-auto md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500 w-full">
+        {/* jika pengguna adalah "admin", dan ada data postingannya, maka tampilkan */}
         {currentUser.isAdmin && userPosts.length > 0 ? (
           <>
             <Table hoverable className="shadow-md">
@@ -117,9 +118,12 @@ export default function DashPosts() {
                 return (
                   <Table.Body key={post._id} className="divide-y">
                     <Table.Row className="bg-white dark:border-gray-700  dark:bg-gray-800">
+                      {/* date updateAt */}
                       <Table.Cell>
                         {new Date(post.updatedAt).toLocaleDateString()}
                       </Table.Cell>
+
+                      {/* image */}
                       <Table.Cell>
                         <Link to={`/post/${post.slug}`}>
                           <img
@@ -129,6 +133,8 @@ export default function DashPosts() {
                           />
                         </Link>
                       </Table.Cell>
+
+                      {/* title */}
                       <Table.Cell>
                         <Link
                           className="font-medium text-gray-900 dark:text-white"
@@ -162,6 +168,8 @@ export default function DashPosts() {
                 );
               })}
             </Table>
+
+            {/* show more */}
             {showMore && (
               <button
                 onClick={handleShowMore}
@@ -172,9 +180,11 @@ export default function DashPosts() {
             )}
           </>
         ) : (
+          // jika tidak ada data postingan munculkan pesan ini
           <p>You have no posts yet!</p>
         )}
 
+        {/* button show modal  */}
         <Modal
           show={showModal}
           onClose={() => setShowModal(false)}
@@ -183,6 +193,7 @@ export default function DashPosts() {
         >
           <Modal.Header />
 
+          {/* body show modal */}
           <Modal.Body>
             <div className="text-center">
               <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
