@@ -11,13 +11,19 @@ export default function DashPosts() {
   const [showModal, setShowModal] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState("");
 
+  // merender data posts
   useEffect(() => {
+    // mengambil data posts dari API berdasarkan userId yang sedang login
     const fetchPosts = async () => {
       try {
         const res = await fetch(`/api/post/getposts?userId=${currentUser._id}`);
         const data = await res.json();
+
+        // jika permintaan berhasil
         if (res.ok) {
-          setUserPosts(data.posts);
+          setUserPosts(data.posts); // posts disimpan dalam state "userPosts"
+
+          // jika jumlah posts yang diambil kurang dari 9, tombol "Show More" dinonaktifkan
           if (data.posts.length < 9) {
             setShowMore(false);
           }
@@ -26,23 +32,31 @@ export default function DashPosts() {
         console.log(error.message);
       }
     };
+
+    // validasi, jika pengguna adalah 'Admin' jalankan fungsi ini
     if (currentUser.isAdmin) {
       fetchPosts();
     }
   }, [currentUser]);
 
+  // fungsi event ketika tombol "Show More" diklik
   const handleShowMore = async () => {
-    const startIndex = userPosts.length;
+    const startIndex = userPosts.length; // mengambil jumlah postingan
 
     try {
+      // mengambil data post dari API menggunakan parameter 'userId', 'curentUser.id' dan jumlah postingan 'startIndex'
       const res = await fetch(
         `/api/post/getPosts?userId=${currentUser._id}&startIndex=${startIndex}`
       );
 
       const data = await res.json();
 
+      // jika response nya berhasil
       if (res.ok) {
+        // tambahkan postingan baru ke daftar dengan postingan yang sudah ada
         setUserPosts((prev) => [...prev, ...data.posts]);
+
+        // jika jumlah posts yang diambil kurang dari 9, tombol "Show More" dinonaktifkan
         if (data.posts.length < 9) {
           setShowMore(false);
         }
@@ -52,10 +66,12 @@ export default function DashPosts() {
     }
   };
 
+  // fungsi delete posts
   const handleDeletePost = async () => {
-    setShowModal(false);
+    setShowModal(false); // default tutup showModal
 
     try {
+      // mengirim permintaan delete ke API menggunakan ID postingan yang akan dihapus berdasarkan pengguna yang sedang login
       const res = await fetch(
         `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
         {
@@ -65,9 +81,13 @@ export default function DashPosts() {
 
       const data = await res.json();
 
+      // jika postigan gagal, tampilkan pesan ke console
       if (!res.ok) {
         console.log(data.message);
+
+        // jika tidak
       } else {
+        // update daftar postingan seteleh delete behasil
         setUserPosts((prev) => {
           return prev.filter((post) => post._id !== postIdToDelete);
         });
