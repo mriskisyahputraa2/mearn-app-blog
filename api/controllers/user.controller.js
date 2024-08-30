@@ -84,7 +84,9 @@ export const updateUser = async (req, res, next) => {
 
 // Function Delete User
 export const deleteUser = async (req, res, next) => {
+  // validasi, jika user bukan admin dan user id nya tidak sama dengan parameter userid
   if (!req.user.isAdmin && req.user.id !== req.params.userId) {
+    // maka tampilkan pesan ini
     return next(
       errorHandler(403, "Anda tidak diizinkan untuk menghapus pengguna ini")
     );
@@ -110,40 +112,49 @@ export const signout = (req, res, next) => {
 
 // Function GetUsers
 export const getUsers = async (req, res, next) => {
+  // validasi, jika user nya bukan admin
   if (!req.user.isAdmin) {
+    // tampilkan pesan
     return next(
       errorHandler(403, "Anda tidak diizinkan untuk melihat semua pengguna")
     );
   }
 
   try {
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    const limit = parseInt(req.query.limit) || 9;
-    const sortDirection = req.query.order === "asc" ? 1 : -1;
+    const startIndex = parseInt(req.query.startIndex) || 0; // mengambil nilai startIndex dari query parameter, jika tidak ada, akan diset ke-0
+    const limit = parseInt(req.query.limit) || 9; // limit untuk membatasi jumlah pengguna yang ditampilkan
+    const sortDirection = req.query.order === "asc" ? 1 : -1; // menentukan arah pengurutan, 1 untuk ascending dan -1 untuk descending
 
+    // mencari users didatabase mengurutkan berdasarkan
     const users = await User.find()
-      .sort({ createdAt: sortDirection })
-      .skip(startIndex)
-      .limit(limit);
+      .sort({ createdAt: sortDirection }) // tanggal pembuatan
+      .skip(startIndex) // melewati sejumlah pengguna
+      .limit(limit); // membatasi users yang ditampilkan
 
+    // menghilangkan field password dari response success pengguna untuk keamanan
     const userWithoutPassword = users.map((user) => {
       const { password, ...rest } = user._doc;
       return rest;
     });
 
+    // menghitung jumlah total pengguna didalam database
     const totalUsers = await User.countDocuments();
 
-    const now = new Date();
+    const now = new Date(); // mendapatakn waktu sekarang
+
+    // menghitung jumlah pengguna yang dibuat dalam satu bulan terakhir
     const oneMonthAgo = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
-      now.getDate()
+      now.getFullYear(), // tahun
+      now.getMonth() - 1, // bulan dikurang -1
+      now.getDate() // tanggal
     );
 
+    // menghitung jumlah users yang diubat dalam satu bulan terakhir
     const lastMonthUsers = await User.countDocuments({
       createdAt: { $gte: oneMonthAgo },
     });
 
+    // response success
     res.status(200).json({
       users: userWithoutPassword,
       totalUsers,

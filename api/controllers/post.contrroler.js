@@ -95,32 +95,41 @@ export const getPosts = async (req, res, next) => {
   }
 };
 
+// function delete posts
 export const deletePost = async (req, res, next) => {
+  // validasi, jika user nya bukan admin atau user id nya tidak sama dengan parameter userId
   if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    // tampilkan pesan ini
     return next(
       errorHandler(403, "Anda tidak diizinkan menghapus postingan ini")
     );
   }
 
   try {
+    // mencari dan menghapus postingan berdasarkan parameter postId yang diterima
     await Post.findByIdAndDelete(req.params.postId);
-    res.status(200).json("Postingan telah dihapus");
+    res.status(200).json("Postingan telah dihapus"); // pesan success
   } catch (error) {
-    next(error);
+    next(error); // middleware kesalahan(error)
   }
 };
 
+// function update posts
 export const updatePost = async (req, res, next) => {
+  // validasi, jika user nya bukan admin dan user id nya tidak sama dengan parameter userId
   if (!req.user.isAdmin && req.user.id !== req.params.userId) {
+    // maka tampilkan pesan ini
     return next(
       errorHandler(403, "Anda tidak diizinkan memperbaharui postingan ini")
     );
   }
 
   try {
+    // mencari dan meng-updated post berdasarkan parameter postId
     const updatedPost = await Post.findByIdAndUpdate(
       req.params.postId,
       {
+        // dan berdasarkan request body yang diinput pengguna
         $set: {
           title: req.body.title,
           content: req.body.content,
@@ -131,11 +140,12 @@ export const updatePost = async (req, res, next) => {
       { new: true }
     );
 
+    // validasi jika tidak ada ditemukan postingan
     if (!updatedPost) {
       return next(errorHandler(404, "Postingan tidak ditemukan"));
     }
 
-    res.status(200).json(updatedPost);
+    res.status(200).json(updatedPost); // response success
   } catch (error) {
     next(error);
   }
