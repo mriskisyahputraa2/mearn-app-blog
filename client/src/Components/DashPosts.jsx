@@ -125,6 +125,7 @@ export default function DashPosts() {
 
                       {/* image */}
                       <Table.Cell>
+                        {/* slug image */}
                         <Link to={`/post/${post.slug}`}>
                           <img
                             src={post.image}
@@ -136,6 +137,7 @@ export default function DashPosts() {
 
                       {/* title */}
                       <Table.Cell>
+                        {/* slug title */}
                         <Link
                           className="font-medium text-gray-900 dark:text-white"
                           to={`/post/${post.slug}`}
