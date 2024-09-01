@@ -18,45 +18,77 @@ export default function UpdatePost() {
   const [file, setFile] = useState(null);
   const [ImageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
-  const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
-
   const navigate = useNavigate();
-  const { postId } = useParams();
-  const { currentUser } = useSelector((state) => state.user);
+  const { postId } = useParams(); // Ambil postId dari useParams
+  const currentUser = useSelector((state) => state.user.currentUser);
+  const [formData, setFormData] = useState({
+    _id: postId,
+    title: "",
+    content: "",
+    image: "",
+    category: "",
+  });
 
   useEffect(() => {
-    try {
-      const fetchPost = async () => {
+    console.log("postId dari useParams:", postId);
+    console.log("formData setelah inisialisasi:", formData);
+
+    const fetchPost = async () => {
+      try {
         const res = await fetch(`/api/post/getposts?postId=${postId}`);
-
         const data = await res.json();
-        console.log(data);
 
-        if (!res.ok) {
-          console.log(data.message);
-          setPublishError(data.message);
-          return;
+        if (res.ok && data.posts.length > 0) {
+          const post = data.posts[0];
+          setFormData({
+            _id: post._id,
+            title: post.title,
+            content: post.content,
+            image:
+              post.image ||
+              "https://www.hostinger.com/tutorials/wp-content/uploads/sites/2/2021/09/how-to-write-a-blog-post.png", // set default
+            category: post.category || "uncategorized", // set default
+          });
+          console.log("Data post yang di-fetch:", post);
+        } else {
+          setPublishError("Post ID tidak ditemukan.");
         }
+      } catch (error) {
+        console.log(error.message);
+        setPublishError("Terjadi kesalahan saat mengambil data.");
+      }
+    };
 
-        if (res.ok) {
-          setPublishError(null);
-          setFormData(data.posts[0]);
-        }
-      };
-      fetchPost();
-    } catch (error) {
-      console.log(error);
-    }
+    fetchPost();
   }, [postId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Set default values if they are not set
+    if (!formData.image) {
+      formData.image =
+        "https://www.hostinger.com/tutorials/wp-content/uploads/sites/2/2021/09/how-to-write-a-blog-post.png";
+    }
+    if (!formData.category) {
+      formData.category = "uncategorized";
+    }
+
+    if (!formData._id) {
+      console.log("formData._id tidak ditemukan");
+      setPublishError("Post ID tidak ditemukan.");
+      return;
+    }
+
+    if (!currentUser._id) {
+      console.log("currentUser._id tidak ditemukan");
+      setPublishError("User ID tidak ditemukan.");
+      return;
+    }
 
     try {
-      // mengirim permintaan POST ke endpoint "create"
       const res = await fetch(
-        `/api/post/updatepost/${formData._id}/${currentUser.id}`,
+        `/api/post/updatepost/${formData._id}/${currentUser._id}`,
         {
           method: "PUT",
           headers: {
@@ -78,13 +110,13 @@ export default function UpdatePost() {
         navigate(`/post/${data.slug}`);
       }
     } catch (error) {
-      setPublishError("Something went wrong", error);
+      setPublishError("Something went wrong");
+      console.log(error);
     }
   };
 
   const handleUploadImage = () => {
     try {
-      // validasi, jika image belum dimasukkan
       if (!file) {
         setImageUploadError("Silahkan masukkan gambar");
         return;
@@ -132,7 +164,7 @@ export default function UpdatePost() {
     <>
       <div className="p-3 max-w-3xl mx-auto min-h-screen">
         <h1 className="text-center text-3xl my-7 font-semibold">
-          Update a post
+          Update a posts
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-4 sm:flex-row justify-between">
@@ -208,6 +240,8 @@ export default function UpdatePost() {
               className="w-full h-72 object-cover"
             />
           )}
+
+          {/* box input content */}
           <ReactQuill
             theme="snow"
             placeholder="Write something..."
