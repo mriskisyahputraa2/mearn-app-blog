@@ -12,14 +12,17 @@ import OnlyAdminPrivateRoute from "./Components/OnlyAdminPrivateRoute";
 import CreatePost from "./Pages/CreatePost/CreatePost";
 import UpdatePost from "./Pages/UpdatePost/UpdatePost";
 import PostPage from "./Pages/PostPage/PostPage";
+import ScrollTop from "./Components/ScrollTop";
 
 const App = () => {
   return (
     <>
       <BrowserRouter>
+        {/* otomatis halaman akan ke scroll ke atas kembali */}
+        <ScrollTop />
+
         {/* start header top */}
         <Header />
-        {/* end header top */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
