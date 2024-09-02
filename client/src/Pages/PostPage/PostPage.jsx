@@ -90,7 +90,7 @@ export default function PostPage() {
           <CallToAction />
         </div>
 
-        {/* comment section */}
+        {/* comment section, mengirim props post._id*/}
         <CommentSection postId={post._id} />
       </main>
     </>

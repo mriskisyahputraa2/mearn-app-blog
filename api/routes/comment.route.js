@@ -8,6 +8,6 @@ import { verifyToken } from "../utils/verifyUser.js";
 const router = express.Router();
 
 router.post("/create", verifyToken, createComment);
-router.get("/getPostComments/:postId", getPostComment);
+router.get("/getPostComments/:postId", getPostComment); // mendapatkan semua komentar berdasarkan postId
 
 export default router;

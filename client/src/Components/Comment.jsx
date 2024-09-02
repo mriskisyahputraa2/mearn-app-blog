@@ -2,17 +2,22 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 
 export default function Comment({ comment }) {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState({}); // state untuk menyimpan data users
 
   useEffect(() => {
+    // mendapatkan data user berdasarka userId
     const getUser = async () => {
       try {
+        // mengambil data user berdasarkan comment userId
         const res = await fetch(`/api/user/${comment.userId}`);
-
         const data = await res.json();
+
+        // validasi jika response berhasil
         if (res.ok) {
           setUser(data);
         }
+
+        // jika ada kesalahan
       } catch (error) {
         console.log(error.message);
       }

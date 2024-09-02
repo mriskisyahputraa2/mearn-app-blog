@@ -165,15 +165,21 @@ export const getUsers = async (req, res, next) => {
   }
 };
 
+// Function mendapatkan user berdasarkan userId
 export const getUser = async (req, res, next) => {
   try {
+    // mencari dan mendapatkan user berdasarkan parameters userId
     const user = await User.findById(req.params.userId);
 
+    // validasi, jika user tida ada maka tampilkan pesan
     if (!user) {
       return next(errorHandler(404, "Pengguna tidak ditemukan!"));
     }
 
+    // jika user ditemukan, sembunyikan response password dengan properti (user._doc)
     const { password, ...rest } = user._doc;
+
+    // response berhasil
     res.status(200).json(rest);
   } catch (error) {
     next(error);

@@ -4,21 +4,24 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Comment from "./Comment";
 
+// menerima props postId dari halaman 'postPage'
 export default function CommentSection({ postId }) {
   const { currentUser } = useSelector((state) => state.user);
-  const [comment, setComment] = useState(""); // menyimpan data comment
+  const [comment, setComment] = useState(""); // menyimpan nilai komentar yang ditulis oleh pengguna.
   const [commentError, setCommentError] = useState(null);
-  const [comments, setComments] = useState([]); // mendapatkan data comments
-  console.log(comments);
+  const [comments, setComments] = useState([]); // menyimpan daftar komentar yang terkait dengan postId.
 
+  // submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      // validasi, komentar tidak boleh lebih dari 200 karakter
       if (comment.length > 200) {
         return;
       }
 
+      // mengirim request create comment dengan JSON yang berisi content, postId, dan userId
       const res = await fetch("/api/comment/create/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -29,27 +32,35 @@ export default function CommentSection({ postId }) {
         }),
       });
 
+      // ubah data, menjadi json
       const data = await res.json();
 
+      // jika response berhasil
       if (res.ok) {
-        setComment("");
-        setCommentError(null);
-        setComments([data, ...comments]);
+        setComment(""); // simpan komentar yang baru ditambahkan
+        setCommentError(null); // hilangkan error
+        setComments([data, ...comments]); // simpan daftar terbaru dari komentar yang sudah ditambahkan
       }
     } catch (error) {
       setCommentError(error.message);
     }
   };
 
+  // render untuk mengambil komentar
   useEffect(() => {
+    // mengambil semua komentar untuk ditampilkan
     const getComments = async () => {
       try {
+        // mengambil semua daftar komentar berdasarkan postId
         const res = await fetch(`/api/comment/getPostComments/${postId}`);
 
+        // jika berhasil simpan data komentar di state "setComments" dan tampilkan
         if (res.ok) {
           const data = await res.json();
           setComments(data);
         }
+
+        // reponse jika gagal
       } catch (error) {
         console.log(error.message);
       }
