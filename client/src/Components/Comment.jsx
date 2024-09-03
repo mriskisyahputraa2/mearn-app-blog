@@ -31,23 +31,27 @@ export default function Comment({ comment, onLike, onEdit, onDelete }) {
     getUser();
   }, [comment]);
 
+  // fungsi edit komentar ketika aktif
   const handleEdit = async () => {
     setIsEditing(true);
-    setEditedContent(comment.content);
+    setEditedContent(comment.content); // update content comment
   };
 
+  // fungsi simpan data komentar
   const handleSave = async () => {
     try {
+      // mengirim API edit komentar berdasarkan id comment
       const res = await fetch(`/api/comment/editComment/${comment._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          content: editedContent,
+          content: editedContent, // komentar yang berhasil diedit disimpan dalam "content"
         }),
       });
 
+      // jika response berhasil, update comment nya
       if (res.ok) {
         setIsEditing(false);
         onEdit(comment, editedContent);

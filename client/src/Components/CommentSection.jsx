@@ -73,19 +73,25 @@ export default function CommentSection({ postId }) {
     getComments();
   }, [postId]);
 
+  // fungsi handle like, untuk memberikan like atau menghapus like pada komentar
   const handleLike = async (commentId) => {
     try {
+      // validasi, jika user belum login, maka pengguna akan diarahkan untuk login
       if (!currentUser) {
         navigate("/sign-in");
         return;
       }
 
+      // mengirim permintaan API untuk memberikan like atau menghapus berdasarkan commentId
       const res = await fetch(`/api/comment/likeComment/${commentId}`, {
         method: "PUT",
       });
 
+      // jika permintaan berhasil,
       if (res.ok) {
-        const data = await res.json();
+        const data = await res.json(); // data response diubah menjadi object JSON
+
+        // mencari komentar yang memeliki commentId yang sama dan memperbaharui jumlah likes
         setComments(
           comments.map((comment) =>
             comment._id === commentId
@@ -98,31 +104,41 @@ export default function CommentSection({ postId }) {
           )
         );
       }
+
+      // jika terjadi error
     } catch (error) {
       console.log(error.message);
     }
   };
 
+  // fungsi handle edit comment berdasarkan id comment
   const handleEdit = (comment, editedContent) => {
     setComments(
+      // menghasilkan daftar komentar baru
       comments.map((c) =>
+        // mengecek apakah Id nya sama dengan Id komentar
         c._id === comment._id ? { ...c, content: editedContent } : c
       )
     );
   };
 
+  // fungsi handle hapus comment berdasarkna comment id
   const handleDelete = async (commentId) => {
     setShowModal(false);
+
     try {
+      // validasi jika tidak ada pengguna yang login
       if (!currentUser) {
         navigate("/sign-in");
         return;
       }
 
+      // mengirim permintaan API delete comment berdasarkan comment Id
       const res = await fetch(`/api/comment/deleteComment/${commentId}`, {
         method: "DELETE",
       });
 
+      // jika response berhasil hapus data komentar
       if (res.ok) {
         const data = await res.json();
         setComments(comments.filter((comment) => comment._id !== commentId));
@@ -222,7 +238,7 @@ export default function CommentSection({ postId }) {
         >
           <Modal.Header />
 
-          {/* body show modal */}
+          {/* body show modal untuk delete */}
           <Modal.Body>
             <div className="text-center">
               <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
