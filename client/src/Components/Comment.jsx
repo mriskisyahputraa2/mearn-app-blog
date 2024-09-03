@@ -69,7 +69,7 @@ export default function Comment({ comment, onLike, onEdit }) {
         <div className="flex-1 ">
           <div className="flex items-center mb-1">
             <span className="font-bold mr-1 text-xs truncate">
-              {user ? `@${user.username}` : "anonymous user"}
+              {user.username ? `@${user.username}` : "anonymous user"}
             </span>
             <span className="text-gray-500 text-xs">
               {moment(comment.createdAt).fromNow()}
@@ -84,7 +84,6 @@ export default function Comment({ comment, onLike, onEdit }) {
                 onChange={(e) => setEditedContent(e.target.value)}
                 value={editedContent}
               />
-
               <div className="flex justify-end gap-2 text-xs ">
                 <Button
                   onClick={handleSave}

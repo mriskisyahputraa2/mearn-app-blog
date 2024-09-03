@@ -19,6 +19,7 @@ export default function CommentSection({ postId }) {
     try {
       // validasi, komentar tidak boleh lebih dari 200 karakter
       if (comment.length > 200) {
+        setCommentError("Komentar tidak boleh lebih dari 200 karakter.");
         return;
       }
 
@@ -99,13 +100,14 @@ export default function CommentSection({ postId }) {
     }
   };
 
-  const handleEdit = async (comment, editedContent) => {
-    setComment(
-      comment.map((c) =>
+  const handleEdit = (comment, editedContent) => {
+    setComments(
+      comments.map((c) =>
         c._id === comment._id ? { ...c, content: editedContent } : c
       )
     );
   };
+
   return (
     <>
       <div className="max-w-2xl mx-auto w-full p-3">
@@ -187,5 +189,3 @@ export default function CommentSection({ postId }) {
     </>
   );
 }
-
-// 9.35.52 jam, belum siap
