@@ -5,6 +5,7 @@ import DashProfile from "../../Components/DashProfile";
 import DashPosts from "../../Components/DashPosts";
 import DashUsers from "../../Components/DashUser";
 import DashComment from "../../Components/DashComments";
+import DashboardCom from "../../Components/DashboardCom";
 
 export default function Dashboard() {
   const location = useLocation(); // mengambil infomasi lokasi saat ini dan query string
@@ -42,6 +43,9 @@ export default function Dashboard() {
 
         {/* Comment List */}
         {tab === "comments" && <DashComment />}
+
+        {/* dashboard comp */}
+        {tab === "dash" && <DashboardCom />}
       </div>
     </>
   );
