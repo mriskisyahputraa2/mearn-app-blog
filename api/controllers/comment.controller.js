@@ -30,6 +30,42 @@ export const createComment = async (req, res, next) => {
   }
 };
 
+// function get Comments
+export const getComments = async (req, res, next) => {
+  // validasi, jika user nya bukan admin
+  if (!req.user.isAdmin) {
+    // tampilkan pesan
+    return next(
+      errorHandler(403, "Anda tidak diizinkan untuk melihat semua komentar")
+    );
+  }
+
+  try {
+    const starIndex = parseInt(req.query.starIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9;
+    const sortDirection = req.query.sort === "desc" ? -1 : 1;
+
+    const comments = await Comment.find()
+      .sort({ createdAt: sortDirection })
+      .skip(starIndex)
+      .limit(limit);
+
+    const totalComments = await Comment.countDocuments();
+    const now = new Date();
+    const oneMonthAgo = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      now.getMonth()
+    );
+    const lastMonthComments = await Comment.countDocuments({
+      createdAt: { $gte: oneMonthAgo },
+    });
+    res.status(200).json({ comments, totalComments, lastMonthComments });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Funtion mendapatkan semua data comment
 export const getPostComment = async (req, res, next) => {
   try {
