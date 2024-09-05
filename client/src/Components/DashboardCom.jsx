@@ -26,7 +26,6 @@ export default function DashboardCom() {
       try {
         const res = await fetch("api/user/getusers?limit=5");
         const data = await res.json();
-        console.log(data);
 
         if (res.ok) {
           setUsers(data.users);
@@ -41,7 +40,6 @@ export default function DashboardCom() {
       try {
         const res = await fetch("api/post/getposts?limit=5");
         const data = await res.json();
-        console.log(data);
 
         if (res.ok) {
           setPost(data.posts);
