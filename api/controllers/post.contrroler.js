@@ -78,15 +78,15 @@ export const getPosts = async (req, res, next) => {
     );
 
     // menghitung jumlah postingan yang dibuat dalam sebulan terakhir
-    const lastMontPosts = await Post.countDocuments({
-      createAt: { $gte: oneMothAgo },
+    const lastMonthPosts = await Post.countDocuments({
+      createdAt: { $gte: oneMothAgo },
     });
 
     // response berhasil
     res.status(200).json({
       posts,
       totalPosts,
-      lastMontPosts,
+      lastMonthPosts,
     });
 
     // menangani error

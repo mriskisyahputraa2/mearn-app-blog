@@ -6,6 +6,7 @@ import {
   HiDocumentText,
   HiOutlineUserGroup,
   HiAnnotation,
+  HiChartPie,
 } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
@@ -54,10 +55,21 @@ export default function DashSidebar() {
       <Sidebar className="w-full md:w-56">
         <Sidebar.Items>
           <Sidebar.ItemGroup className="flex flex-col gap-1">
+            {currentUser && currentUser.isAdmin && (
+              <Link to="/dashboard?tab=dash">
+                <Sidebar.Item
+                  as="div"
+                  active={tab === "dash" || !tab}
+                  icon={HiChartPie}
+                >
+                  Dashboard
+                </Sidebar.Item>
+              </Link>
+            )}
             <Link to="/dashboard?tab=profile">
               <Sidebar.Item
                 as="div"
-                active={tab === "profile"} //  Link yang mengarahkan pengguna ke halaman dashboard dengan parameter query "?tab=profile"
+                active={tab === "profile"}
                 icon={HiUser}
                 label={currentUser.isAdmin ? "Admin" : "User"}
                 labelColor="dark"
@@ -68,7 +80,7 @@ export default function DashSidebar() {
             <Link to="/dashboard?tab=posts">
               <Sidebar.Item
                 as="div"
-                active={tab === "posts"} //  Link yang mengarahkan pengguna ke halaman dashboard dengan parameter query "?tab=profile"
+                active={tab === "posts"}
                 icon={HiDocumentText}
                 labelColor="dark"
               >
@@ -95,16 +107,7 @@ export default function DashSidebar() {
                 Comments
               </Sidebar.Item>
             </Link>
-            <Link to="/dashboard?tab=dash">
-              <Sidebar.Item
-                as="div"
-                active={tab === "dash"}
-                icon={HiAnnotation}
-                labelColor="dark"
-              >
-                Dash
-              </Sidebar.Item>
-            </Link>
+
             <Sidebar.Item
               as="div"
               icon={HiArrowSmRight}
