@@ -13,6 +13,7 @@ import CreatePost from "./Pages/CreatePost/CreatePost";
 import UpdatePost from "./Pages/UpdatePost/UpdatePost";
 import PostPage from "./Pages/PostPage/PostPage";
 import ScrollTop from "./Components/ScrollTop";
+import Search from "./Components/Search";
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/search" element={<Search />} />
 
           {/* pengguna harus login dulu agar bisa kehalaman dashboard, jika belum route nya masih private(tidak boleh ) */}
           <Route element={<PrivateRoute />}>

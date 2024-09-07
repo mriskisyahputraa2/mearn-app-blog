@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CallToAction from "../../Components/CallToAction";
 import PostCard from "../../Components/PostCard";
@@ -18,7 +18,7 @@ const Home = () => {
   return (
     <>
       <div className="">
-        <div className="flex flex-col gap-6 lg:p-28 px-3 max-w-6xl mx-auto">
+        <div className="flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold">Welcome to my Blog</h1>
           <p className="text-gray-500 text-xs sm:text-sm">
             Here you will find various articles and tutorials on topics such as
@@ -32,6 +32,7 @@ const Home = () => {
             View all posts
           </Link>
         </div>
+
         {/* view action */}
         <div className="p-3 bg-amber-100 dark:bg-slate-700">
           <CallToAction />
@@ -70,3 +71,5 @@ const Home = () => {
 };
 
 export default Home;
+
+// 10.58.55 jam
