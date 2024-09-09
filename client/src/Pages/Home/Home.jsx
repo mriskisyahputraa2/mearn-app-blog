@@ -71,5 +71,3 @@ const Home = () => {
 };
 
 export default Home;
-
-// 10.58.55 jam

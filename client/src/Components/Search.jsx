@@ -47,7 +47,7 @@ export default function Search() {
         setPosts(data.posts);
         setLoading(false);
 
-        if (data.posts.length === 1) {
+        if (data.posts.length === 9) {
           setShowMore(true);
         } else {
           setShowMore(false);
@@ -156,13 +156,12 @@ export default function Search() {
             </Button>
           </form>
         </div>
-
         {/* View Posts */}
         <div className="w-full">
           <h1 className="text-3xl font-semibold sm:border-b border-gray-500 p-3 mt-5">
             Posts result
           </h1>
-          <div className="p-7 flex flex-wrap gap-4">
+          <div className="p-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {!loading && posts.length === 0 && (
               <p className="text-xl text-gray-500">No posts found.</p>
             )}
@@ -174,12 +173,14 @@ export default function Search() {
               posts.map((post) => <PostCard key={post._id} post={post} />)}
 
             {showMore && (
-              <button
-                onClick={handleShowMore}
-                className="w-full text-teal-500 text-lg hover:underline p-7"
-              >
-                Show More
-              </button>
+              <div className="text-center col-span-full">
+                <button
+                  onClick={handleShowMore}
+                  className="text-teal-500 text-lg hover:underline py-4"
+                >
+                  Show More
+                </button>
+              </div>
             )}
           </div>
         </div>
