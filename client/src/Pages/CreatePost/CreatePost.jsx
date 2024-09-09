@@ -134,6 +134,7 @@ export default function CreatePost() {
               <option value="javascript">JavaScript</option>
               <option value="reactjs">React.js</option>
               <option value="nextjs">Next.js</option>
+              <option value="php">PHP</option>
             </Select>
           </div>
 

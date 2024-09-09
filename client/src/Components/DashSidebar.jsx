@@ -55,17 +55,6 @@ export default function DashSidebar() {
       <Sidebar className="w-full md:w-56">
         <Sidebar.Items>
           <Sidebar.ItemGroup className="flex flex-col gap-1">
-            {currentUser && currentUser.isAdmin && (
-              <Link to="/dashboard?tab=dash">
-                <Sidebar.Item
-                  as="div"
-                  active={tab === "dash" || !tab}
-                  icon={HiChartPie}
-                >
-                  Dashboard
-                </Sidebar.Item>
-              </Link>
-            )}
             <Link to="/dashboard?tab=profile">
               <Sidebar.Item
                 as="div"
@@ -77,36 +66,50 @@ export default function DashSidebar() {
                 Profile
               </Sidebar.Item>
             </Link>
-            <Link to="/dashboard?tab=posts">
-              <Sidebar.Item
-                as="div"
-                active={tab === "posts"}
-                icon={HiDocumentText}
-                labelColor="dark"
-              >
-                Post
-              </Sidebar.Item>
-            </Link>
-            <Link to="/dashboard?tab=users">
-              <Sidebar.Item
-                as="div"
-                active={tab === "users"}
-                icon={HiOutlineUserGroup}
-                labelColor="dark"
-              >
-                Users
-              </Sidebar.Item>
-            </Link>
-            <Link to="/dashboard?tab=comments">
-              <Sidebar.Item
-                as="div"
-                active={tab === "comments"}
-                icon={HiAnnotation}
-                labelColor="dark"
-              >
-                Comments
-              </Sidebar.Item>
-            </Link>
+
+            {currentUser && currentUser.isAdmin && (
+              <>
+                <Link to="/dashboard?tab=dash">
+                  <Sidebar.Item
+                    as="div"
+                    active={tab === "dash" || !tab}
+                    icon={HiChartPie}
+                  >
+                    Dashboard
+                  </Sidebar.Item>
+                </Link>
+                <Link to="/dashboard?tab=posts">
+                  <Sidebar.Item
+                    as="div"
+                    active={tab === "posts"}
+                    icon={HiDocumentText}
+                    labelColor="dark"
+                  >
+                    Post
+                  </Sidebar.Item>
+                </Link>
+                <Link to="/dashboard?tab=users">
+                  <Sidebar.Item
+                    as="div"
+                    active={tab === "users"}
+                    icon={HiOutlineUserGroup}
+                    labelColor="dark"
+                  >
+                    Users
+                  </Sidebar.Item>
+                </Link>
+                <Link to="/dashboard?tab=comments">
+                  <Sidebar.Item
+                    as="div"
+                    active={tab === "comments"}
+                    icon={HiAnnotation}
+                    labelColor="dark"
+                  >
+                    Comments
+                  </Sidebar.Item>
+                </Link>
+              </>
+            )}
 
             <Sidebar.Item
               as="div"

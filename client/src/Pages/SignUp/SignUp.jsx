@@ -6,11 +6,12 @@ import OAuth from "../../Components/OAuth";
 export default function SignUp() {
   // state form data, state awal diatur object kosong
   const [formData, setFormData] = useState({});
+  const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // function handle change, dipanggil setiap kali ada perubahan pada inputan form data
+  // Fungsi untuk menangani perubahan input form
   const handleChange = (e) => {
     // memperbarui state formData.
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -23,7 +24,7 @@ export default function SignUp() {
 
     // validasi jika data tidak dimasukkan
     if (!formData.username || !formData.email || !formData.password) {
-      return setErrorMessage("Please fill out all fields!");
+      return setErrorMessage("Harap isi semua kolom!");
     }
 
     // start
@@ -48,11 +49,13 @@ export default function SignUp() {
 
       // validasi, jika proses validasi signup berhasil, maka pengguna di navigate ke sign-in
       if (res.ok) {
-        navigate("/sign-in");
-      }
+        setSuccessMessage("Register Berhasil");
+        setLoading(false);
 
-      // mematikan loading
-      setLoading(false);
+        setTimeout(() => {
+          navigate("/sign-in");
+        }, 2000);
+      }
     } catch (error) {
       setErrorMessage(error.message);
       setLoading(false);
@@ -109,7 +112,6 @@ export default function SignUp() {
               <Button
                 type="submit"
                 gradientDuoTone="purpleToPink"
-                Tone="purpleToPink"
                 disabled={loading}
               >
                 {loading ? (
@@ -130,6 +132,13 @@ export default function SignUp() {
                 Sign In
               </Link>
             </div>
+
+            {successMessage && (
+              <Alert className="mt-5" color="success">
+                {successMessage}
+              </Alert>
+            )}
+
             {errorMessage && (
               <Alert className="mt-5" color="failure">
                 {errorMessage}
