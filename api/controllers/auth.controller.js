@@ -51,7 +51,7 @@ export const signin = async (req, res, next) => {
 
   // validasi, email dan password tidak boleh kosong
   if (!email || !password || email === "" || password === "") {
-    return next(errorHandler(400, "All fields are required!"));
+    return next(errorHandler(400, "Harap isi semua kolom!"));
   }
 
   try {
@@ -59,7 +59,7 @@ export const signin = async (req, res, next) => {
 
     // validasi, jika email tidak ditemukan
     if (!validUser) {
-      return next(errorHandler(400, "User not found!"));
+      return next(errorHandler(400, "Pengguna tidak ditemukan!"));
     }
 
     // validasi, jika pengguna ditemukan dan mecocokkan dengan password yang sudah di daftarkan
@@ -67,7 +67,7 @@ export const signin = async (req, res, next) => {
 
     // validasi, password jika salah dan tidak sesuai dengan proses signIn
     if (!validPassword) {
-      return next(errorHandler(400, "Invalid Password!"));
+      return next(errorHandler(400, "Kata sandi salah!"));
     }
 
     // membuat token jwt
