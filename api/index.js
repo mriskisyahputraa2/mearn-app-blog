@@ -7,6 +7,7 @@ import postRoutes from "./routes/post.route.js";
 import commentRoutes from "./routes/comment.route.js";
 import cookieParser from "cookie-parser";
 import path from "path";
+import cors from "cors";
 
 dotenv.config();
 // connent database mongodb
@@ -18,6 +19,14 @@ mongoose
   .catch((err) => {
     console.log("error", err);
   });
+
+app.use(
+  cors({
+    origin: ["https://mearn-app-blog.vercel.app"],
+    methods: ["POST", "GET"],
+    credentials: true,
+  })
+);
 
 const __dirname = path.resolve();
 
